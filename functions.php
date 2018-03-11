@@ -325,6 +325,7 @@
 
 	/*-----------------------------------------------------
 	 * 	 Función de wordpress para administrar el favicon
+	 	 de la plantilla a medida
 	 *----------------------------------------------------*/	
 
 	function add_my_favicon() {
