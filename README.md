@@ -1,4 +1,4 @@
-Aprende a convetir una plantilla html a WordPress
+#Aprende a convetir una plantilla html a WordPress
 
 Aqui dejo el backup de como instalar la copia de #WordPress a un servidor local o un hosting.
 
