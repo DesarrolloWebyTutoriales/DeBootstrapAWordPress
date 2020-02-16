@@ -18,6 +18,67 @@
   		'primary' => __( 'Menu Principal', 'Dreams Consulting' ),
  	) );
 
+	//----//
+	function add_dreamsconsulting_css_js() 
+	{
+		// Registrar los estilos css
+		wp_register_style( 'bootstrap-min-css', get_stylesheet_directory_uri() . '/css/bootstrap.min.css', array(), '
+			3.3.4', 'all' );
+		wp_register_style( 'fontawesome-min-css', get_stylesheet_directory_uri() . '/css/font-awesome.min.css', array(), '
+			4.7.0', 'all' );
+
+		$query_args_1 = array(
+		'family' => 'Open+Sans|Roboto+Condensed:300|Signika'
+		);
+		wp_register_style( 
+			'google-fonts-1', 
+			add_query_arg( $query_args_1, '//fonts.googleapis.com/css' ), 
+			array(), 
+			null 
+		);
+
+		wp_register_style( 'owl-carousel-css', get_stylesheet_directory_uri() . '/css/owl.carousel.css', array(), '2.2.1', 'all' );	
+		wp_register_style( 'owl-theme-css', get_stylesheet_directory_uri() . '/css/owl.theme.default.min.css', array(), '2.2.1', 'all' );
+		wp_register_style( 'animate-css', get_stylesheet_directory_uri() . '/css/animate.css', array(), '3.5.2', 'all' );			
+		wp_register_style( 'style-css', get_stylesheet_directory_uri() . '/style.css', array(), '1.3.4', 'all' );
+
+	    // Registrar los scripts js
+    	wp_register_script( 'bootstrap-min-js', get_template_directory_uri().'/js/bootstrap.min.js', '', '', true );
+    	wp_register_script( 'owl-carousel-min', get_template_directory_uri().'/js/owl.carousel.min.js', '', '', true );    	
+		wp_register_script( 
+			'googlemap',
+			'https://maps.googleapis.com/maps/api/js?key=AIzaSyCKH_Kfp9e1DmJJMKQBiAtQ_oGhIU3QfFE',
+			array(),
+			null,
+			false
+		);		
+		wp_register_script( 'cargar-js', get_template_directory_uri().'/js/cargar.js', '', '', true );
+
+		// css
+		wp_enqueue_style('bootstrap-min-css');
+		wp_enqueue_style('fontawesome-min-css');
+		wp_enqueue_style('google-fonts-1');
+		wp_enqueue_style('owl-carousel-css');
+		wp_enqueue_style('owl-theme-css');
+		wp_enqueue_style('animate-css');
+		wp_enqueue_style('style-css');		
+
+		// js
+		wp_enqueue_script('bootstrap-min-js');
+		wp_enqueue_script('owl-carousel-min');
+		wp_enqueue_script('googlemap');
+		wp_enqueue_script('cargar-js');
+
+	}
+	add_action( 'wp_enqueue_scripts', 'add_dreamsconsulting_css_js' );
+
+	function add_scripts() {
+	        wp_deregister_script('jquery');
+	        wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js', '', '1.12.4', false);
+	        wp_enqueue_script( 'jquery' );
+	}
+	add_action('wp_enqueue_scripts', 'add_scripts'); 	
+
 	// Soporte imagenes destacadas (featured images)
 	add_theme_support( 'post-thumbnails' );	
 
@@ -56,7 +117,25 @@
 		) );
 	    
 	}
-	add_action( 'widgets_init', 'header_widgets_init' );	
+	add_action( 'widgets_init', 'header_widgets_init' );
+
+	/*-----------------------------------------------------
+	 * 			widget para el footer
+	 *----------------------------------------------------*/		
+
+	function footer_widget_init()
+	{
+		register_sidebar( array(
+			'name' => __( 'Pie de pagina', 'Dreams Consulting' ),
+			'id' => 'footer-1',
+			'description' => __( 'Un área de widget para el pie de pagina', 'dreams consulting' ),
+			'before_widget' => '<div id="%1$s" class="headwidget %2$s">',
+			'after_widget' => '</div>',
+
+		) );
+
+	}
+	add_action( 'widgets_init', 'footer_widget_init' );
 
 	// sidebar derecha
 	function sidebarDerecha()
@@ -145,8 +224,10 @@
 	}
 
 	// Crear Shorcote Carousel
-	function jg_slider($atts)
+	function jg_slider($content = null)
 	{  
+
+		ob_start();
 
 		$args_elecciones = array(
 		  'post_type' => 'elecciones',
@@ -156,47 +237,101 @@
 		  'order' => 'ASC'
 		); 
 
-		$elecciones_data = new WP_Query($args_elecciones); 
+		$elecciones_data = new WP_Query($args_elecciones); 	
 
-		$texto = '';
-		$texto .='<div id="slider-elecciones" class="owl-carousel owl-theme">';		
+		?>
 
-        if($elecciones_data->have_posts()):
+		<div id="slider-elecciones" class="owl-carousel owl-theme">	
 
-            while($elecciones_data->have_posts()):
+			<?php
 
-                $elecciones_data->the_post();
+				if($elecciones_data->have_posts()):
 
-                $img_file   = get_field('imagen');
-                $titulo  	= get_field('titulo');
-                $fecha      = get_field('fecha');
-                $archivo 	= get_field('subir_archivo');
+				    while($elecciones_data->have_posts()):
 
-                $texto .= '<article class="text-center">';
-                $texto .= '<div id="bloque-izq">';
-                $texto .= '<img src="'.$img_file['url'].'" class="img-responsive" />';
-                $texto .= '</div>';
-                $texto .= '<div id="bloque-der">';
-                $texto .= '<p>'.$titulo.'</p>';
-                $texto .= '<p><a href="'.$archivo['url'].'">'.$fecha.'</a></p>';
-                $texto .= '</div>';
-                $texto .= '</article>';
+				        $elecciones_data->the_post();
 
-            endwhile;
+				        $img_file   = get_field('imagen');
+				        $titulo  	= get_field('titulo');
+				        $fecha      = get_field('fecha');
+				        $archivo 	= get_field('subir_archivo');
+			?>
 
-        $texto .='</div>';
+				       <article class="text-center">
+							<div id="bloque-izq">
+								<img src="<?php echo $img_file['url']; ?>" class="img-responsive" />
+							</div>
+							<div id="bloque-der">
+								<p><?php echo $titulo; ?></p>
+								<p><a href="<?php echo $archivo['url']; ?>"><?php echo $fecha; ?></a></p>
+							</div>
+				       
+				       </article>
 
-        endif;
+			<?php
 
-        return $texto; 
+					endwhile;
+					wp_reset_postdata();
+
+				endif;
+
+			?>
+
+		</div>
+		<!-- -->
+
+	<?php
+
+		$content  = ob_get_contents();
+		ob_end_clean(); 
+		return $content; 
 		 
 	}
 
 	add_shortcode('jgslider','jg_slider');
 
+	// Crear Shortcode para fornulario de contacto
+	function contact_form_customize($atts)
+	{
+
+		$html  = '<form id="fcontacto" method="post">';
+		$html .= '<div class="col-sm-6">
+		              <div class="form-group">
+		                <input type="text" name="nombres" class="form-control" placeholder="Nombres" />
+		              </div> 
+		              <div class="form-group">
+		                <input type="text" name="apellidos" class="form-control" placeholder="Apellidos" />
+		              </div>
+		              <div class="form-group">
+		                <input type="text" name="email" class="form-control" placeholder="E-mail" />
+		              </div>                  
+		           </div>';
+		$html .= '<div class="col-sm-6">
+		              <div class="form-group">
+		                <input type="text" name="asunto" class="form-control" placeholder="Asunto" />
+		              </div>
+		              <div class="form-group">
+		                <textarea name="mensaje" class="form-control" rows="4" placeholder="Mensaje"></textarea>
+		              </div>
+		            </div>
+		            
+		            <div class="col-sm-12">
+		              <div class="form-group">
+		                <button type="button" class="btn btn-default enviar">Enviar</button>
+		              </div>
+
+		           </div>';
+		$html .= '<div id="estado"></div>';
+		$html .= '</form>';
+
+		return $html;
+
+	}
+	add_shortcode('contact-form-customize','contact_form_customize');
+
 	/*-----------------------------------------------------
 	 * 			Declaro una funcion para el ajax
-	 *----------------------------------------------------*/	
+	 *----------------------------------------------------*/
 
 	add_action('wp_head', 'myplugin_ajaxurl');
 	function myplugin_ajaxurl() {
@@ -303,6 +438,18 @@
 	}
 
 	/*-----------------------------------------------------
+	 * 	  Declaro la funcion addComentarios() Para el registro de comentarios
+	      en el detalle de la entrada
+	 *----------------------------------------------------*/
+	add_action( 'wp_ajax_addComentarios', 'addComentarios' );
+	add_action( 'wp_ajax_nopriv_addComentarios', 'addComentarios' );	
+	function addComentarios()
+	{
+
+	}
+
+
+	/*-----------------------------------------------------
 	 * 	     Function de wordpress para administrar el logo
 	 		 de la imagen
 	 *----------------------------------------------------*/	
@@ -325,7 +472,6 @@
 
 	/*-----------------------------------------------------
 	 * 	 Función de wordpress para administrar el favicon
-	 	 de la plantilla a medida
 	 *----------------------------------------------------*/	
 
 	function add_my_favicon() {
@@ -335,4 +481,261 @@
 	}
 
 	add_action( 'wp_head', 'add_my_favicon' ); //front end
-	add_action( 'admin_head', 'add_my_favicon' ); //admin end	
+	add_action( 'admin_head', 'add_my_favicon' ); //admin end
+
+	/*-----------------------------------------------------
+	 * 	 Función de wordpress para administrar las opciones del tema
+	 *----------------------------------------------------*/	
+
+	function theme_settings_page()
+	{
+    ?>
+	    <div class="wrap">
+	    <h1>Theme Panel</h1>
+	    <form method="post" action="options.php" enctype="multipart/form-data">
+	        <?php
+	            settings_fields("section");
+	            do_settings_sections("theme-options");      
+	            submit_button(); 
+	        ?>
+	    </form>
+		</div>
+	<?php		
+	}
+
+	function add_theme_menu_item()
+	{
+		add_menu_page("Theme Panel", "Theme Panel", "manage_options", "theme-panel", "theme_settings_page", null, 99);
+	}
+
+	add_action("admin_menu", "add_theme_menu_item");	
+
+	/*-----------------------------------------------------
+	 * 	 Función de wordpress para mostrar que opciones
+	 del tema se van a administrar
+	 *----------------------------------------------------*/
+
+	function display_search_header()
+	{
+		?>
+			<input type="checkbox" name="theme_layout" value="1" <?php checked(1, get_option('theme_layout'), true); ?> /> Si
+		<?php
+	}	 
+
+	function display_facebook_element()
+	{
+		?>
+	    	<input type="text" name="facebook_url" id="facebook_url" value="<?php echo get_option('facebook_url'); ?>" style="width: 50%;" />
+	    <?php
+	}
+
+	function display_twitter_element()
+	{
+		?>
+	    	<input type="text" name="twitter_url" id="twitter_url" value="<?php echo get_option('twitter_url'); ?>" style="width: 50%;" />
+	    <?php
+	}
+
+	function display_google_plus_element()
+	{
+		?>
+			<input type="text" name="google_plus_url" id="google_plus_url" value="<?php echo get_option('google_plus_url'); ?>" style="width: 50%;" />
+		<?php
+	}
+
+	function display_youtube_element()
+	{
+		?>
+			<input type="text" name="youtube_url" id="youtube_url" value="<?php echo get_option('youtube_url'); ?>" style="width: 50%;" />
+		<?php
+	}
+
+	function display_pinterest_element()
+	{
+		?>
+			<input type="text" name="pinterest_url" id="pinterest_url" value="<?php echo get_option('pinterest_url'); ?>" style="width: 50%;" />
+		<?php
+	}
+	function display_instagram_element()
+	{
+		?>
+			<input type="text" name="instagram_url" id="instagram_url" value="<?php echo get_option('instagram_url'); ?>" style="width: 50%;" />
+		<?php
+	}		
+	function display_linkedin_element()
+	{
+		?>
+			<input type="text" name="linkedin_url" id="linkedin_url" value="<?php echo get_option('linkedin_url'); ?>" style="width: 50%;" />			
+		<?php
+	}
+
+	function display_phone_whatsapp()
+	{
+		?>
+			<input type="text" name="phone_ws" id="phone_ws" value="<?php echo get_option('phone_ws'); ?>" style="width: 50%;" />			
+		<?php		
+	}
+	function display_link_customize()
+	{
+		?>
+			<input type="text" name="customize_url_ws" id="customize_url_ws" value="<?php echo get_option('customize_url_ws'); ?>" style="width: 50%;" />			
+		<?php		
+	}
+	function display_email_element()
+	{
+		?>
+			<input type="text" name="email_url" id="email_url" value="<?php echo get_option('email_url'); ?>" style="width: 50%;" />			
+		<?php
+	}		
+
+	/*-----------------------------------------------------
+	 * 	 Función de wordpress para administrar los derechos
+		 de autor y administrar el logo en el pie de pagina
+	 *----------------------------------------------------*/
+
+	function display_copyright_element()
+	{
+		?>
+	    	<input type="text" name="copyright_text" id="copyright_text" value="<?php echo get_option('copyright_text'); ?>" style="width: 50%;" />
+	    <?php
+
+	}
+
+	function logo_setting() 
+	{  
+		$options = get_option('plugin_options'); 
+
+		if($options=="")
+		{
+			echo "";
+		}
+		else
+		{
+	?>
+		<p><img src="<?php echo $options['logo']; ?>" alt="Logo" /></p>
+	<?php
+		}
+	?>
+		<input type="file" name="logo" />
+	<?php
+	}
+
+	function display_theme_panel_fields()
+	{
+		
+
+	    add_settings_field("theme_layout", "Desea desactivar el buscador del header ?", "display_search_header", "theme-options", "section");
+
+	    add_settings_field("facebook_url", "Facebook Profile Url", "display_facebook_element", "theme-options", "section");		
+		add_settings_field("twitter_url", "Twitter Profile Url", "display_twitter_element", "theme-options", "section");
+		add_settings_field("google_plus_url", "Google Plus Profile Url", "display_google_plus_element", "theme-options", "section");
+		add_settings_field("youtube_url", "Youtube Channel Url", "display_youtube_element", "theme-options", "section");
+		add_settings_field("instagram_url", "Instagram Account", "display_instagram_element", "theme-options", "section");			
+		add_settings_field("pinterest_url", "Pinterest Profile Url", "display_pinterest_element", "theme-options", "section");
+		add_settings_field("linkedin_url", "Linkedin Profile Url", "display_linkedin_element", "theme-options", "section");
+		add_settings_field("email_url", "E-mail de la empresa", "display_email_element", "theme-options", "section");
+		add_settings_field("phone_ws", "Whatsapp number", "display_phone_whatsapp", "theme-options", "section");
+		add_settings_field("customize_url_ws", "Enlace de whatsapp", "display_link_customize", "theme-options", "section");
+
+	    add_settings_field("copyright_text", "Copyright Text", "display_copyright_element", "theme-options", "section");
+
+		// add settings filed with callback test_logo_display.
+		add_settings_field('logo', 'Logo:', 'logo_setting', "theme-options", 'section'); // LOGO
+	    
+		add_settings_section("section", "Cabecera y Footer Social Media", null, "theme-options");
+		register_setting("section", "theme_layout");
+	    register_setting("section", "facebook_url");
+	    register_setting("section", "twitter_url");
+	    register_setting("section", "google_plus_url");
+	    register_setting("section", "youtube_url");
+	    register_setting("section", "instagram_url");	    
+	    register_setting("section", "pinterest_url");
+	    register_setting("section", "linkedin_url");
+	    register_setting("section", "email_url");	    
+	    register_setting("section", "phone_ws");
+	    register_setting("section", "customize_url_ws");
+	    register_setting("section", "copyright_text");
+		register_setting("section", 'logo');
+		register_setting('section', 'plugin_options', 'validate_setting');
+
+	}
+	add_action("admin_init", "display_theme_panel_fields");	
+
+	function validate_setting($plugin_options) 
+	{ 
+		$keys = array_keys($_FILES); 
+
+		$i = 0; 
+		foreach ( $_FILES as $image ) 
+		{   
+			// if a files was upload   
+			if ($image['size']) 
+			{     
+				// if it is an image     
+				if ( preg_match('/(jpg|jpeg|png|gif)$/', $image['type']) ) {       
+					$override = array('test_form' => false);       
+					// save the file, and store an array, containing its location in $file       
+					$file = wp_handle_upload( $image, $override );       
+					$plugin_options[$keys[$i]] = $file['url'];     
+				} 
+				else 
+				{       
+				// Not an image.        
+				$options = get_option('plugin_options');       
+				$plugin_options[$keys[$i]] = $options[$logo];       
+				// Die and let the user know that they made a mistake.       
+				wp_die('No image was uploaded.');     
+				}   
+			}   
+			// Else, the user didn't upload a file.   
+			// Retain the image that's already on file.   
+			else 
+			{     
+				$options = get_option('plugin_options');     
+				$plugin_options[$keys[$i]] = $options[$keys[$i]];   
+			} 
+
+		$i++; 
+
+		} 
+		
+		return $plugin_options;
+
+	}
+
+	function change( $data ) {
+
+	    $message = null;
+	    $type = null;
+
+	    if ( null != $data ) {
+
+	        if ( false === get_option( 'theme-panel' ) ) {
+
+	            add_option( 'theme-panel', $data );
+	            $type = 'updated';
+	            $message = __( 'Successfully saved 11', 'tex-domain' );
+
+	        } else {
+
+	            update_option( 'theme-panel', $data );
+	            $type = 'updated';
+	            $message = __( 'Successfully updated 22', 'tex-domain' );
+
+	        }
+
+	    } else {
+
+	        $type = 'error';
+	        $message = __( 'Data can not be empty', 'tex-domain' );
+
+	    }
+
+	    add_settings_error(
+	        'myUniqueIdentifier',
+	        esc_attr( 'settings_updated' ),
+	        $message,
+	        $type
+	    );
+
+	}
