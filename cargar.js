@@ -1,4 +1,49 @@
+$(window).on('load', function() { // makes sure the whole site is loaded 
+    $('#status').fadeOut(); // will first fade out the loading animation 
+    $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+    $('body').delay(350).css({'overflow':'visible'});
+});
+
 $(document).ready(function(){
+
+    // slider
+    $("#slider-testimonios").owlCarousel({
+        items:1, 
+        margin: 20,
+        nav: true,
+        dots: false,
+        autoplay:true, 
+        loop:true, 
+        animateOut: 'fadeOut'
+    });
+
+    // carousel elecciones
+    $("#slider-elecciones").owlCarousel({
+        items:3, 
+        margin: 20,
+        nav: true,
+        dots: false,
+        autoplay:true, 
+        loop:true, 
+        animateOut: 'fadeOut',
+        responsiveClass:true,
+        responsive:{
+            0:{
+                items:1,
+                nav:true
+            },
+            600:{
+                items:3,
+                nav:false
+            },
+            1000:{
+                items:3,
+                nav:true,
+                loop:false
+            }
+        }
+
+    });   
 
 	$('.enviar').click(function(){
 
@@ -10,7 +55,7 @@ $(document).ready(function(){
 	    var comment        = $('textarea[name=mensaje]');       
 	    var returnError    = false;
 
-	    var formData	   = $('#fcontacto').serialize()
+	    var formData	   = $('#fcontacto').serialize();
 	    
 	    // Simple validacion para saber si el usuario ingreso algun valor
 	    // Agrego un control de errores con js, pero tambien procesando con un archivo PHP.
@@ -62,7 +107,7 @@ $(document).ready(function(){
 	        type: "POST",
 
 	        // colocamos la variable data para enviar los datos del formulario.       
-            data: formData + '&action=enviarMail',      
+            data: formData + '&action=enviarMail',
 	        
 	        // No almacenar los temporales en la pagina
 	        cache: false,
@@ -171,5 +216,50 @@ $(document).ready(function(){
         return false;
     
     });	
+
+    // add coments with ajax
+
+    var commentform=$('#commentform'); // find the comment form
+    commentform.prepend('<div id="comment-status" ></div>'); // add info panel before the form to provide feedback or errors
+    var statusdiv=$('#comment-status'); // define the infopanel
+
+    commentform.submit(function(){
+        //serialize and store form data in a variable
+        var formdata=commentform.serialize();
+        //Add a status message
+        statusdiv.html('<p>Processing...</p>');
+        //Extract action URL from commentform
+        var formurl=commentform.attr('action');
+        //Post Form with data
+        $.ajax({
+            url: ajaxurl,        	
+            type: 'POST',
+            data: formdata + '&action=inscripcionSuscritos',
+            error: function(XMLHttpRequest, textStatus, errorThrown)
+            {
+                statusdiv.html('<p class="ajax-error" >You might have left one of the fields blank, or be posting too quickly</p>');
+            },
+            success: function(data, textStatus){
+                if(data == "success" || textStatus == "success"){
+                    statusdiv.html('<p class="ajax-success" >Thanks for your comment. We appreciate your response.</p>');
+                }else{
+                    statusdiv.html('<p class="ajax-error" >Please wait a while before posting your next comment</p>');
+                    commentform.find('textarea[name=comment]').val('');
+                }
+            }
+
+        });
+
+        return false;
+
+    });   
+
+    $("#menu_5").addClass("active"); 
+
+    $('ul.nav li.dropdown').hover(function() {
+        $(this).find('.dropdown-menu').stop(true, true).delay(200).fadeIn(500);
+    }, function() {
+        $(this).find('.dropdown-menu').stop(true, true).delay(200).fadeOut(500);
+    });    
 
 });
